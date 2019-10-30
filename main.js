@@ -11,6 +11,7 @@ ui_text['subtitle'] = 'you are a cat.'
 ui_text['play'] = 'wake up?'
 ui_text['about'] = '(about)'
 ui_text['credits'] = '(credits)'
+ui_text['sound'] = '(music)'
 ui_text['awake_waiting'] = "You're hungry."
 ui_text['action1'] = 'Hunt a rat'
 ui_text['action1_response'] = 'You catch a yummy rat and feel slightly fuller.'
@@ -27,6 +28,9 @@ ui_text['action6_response'] = ''
 ui_text['too_hungry_fail'] = "You faint from hunger. Thankfully, you're not alone ..."
 ui_text['win'] = "You did it! You're full! You get to spend the rest of day playing in flowers, and settle down for a comfy nap."
 ui_text['too_stressed_fail'] = "You're too tired! You can't ... keep ... going ... \n\n but your besties have your back ^_^"
+
+// global variables
+let music, music_toggle, playscene, endscene, titlescene
 
 /**
 * Randomize array element order in-place.
@@ -49,10 +53,6 @@ g.border = "2px red dashed";
 g.scaleToWindow();
 g.start();
 
-// Create BeepBox synth
-let music = new beepbox.Synth("");
-//music.play();
-//music.pause();
 
 // show loading bar
 function load(){
@@ -76,6 +76,7 @@ function setup() {
   fullness = 0; // reinitialize on play
   awake = false;
   ticks_since_last_action = 0;
+  music_status = true;
 
   // Alter variables, check for win/fail states
   function update_stress_hunger(stress_d, fullness_d, reset_ticks_n){
@@ -108,6 +109,7 @@ function setup() {
     action.interactive = true;
     action.tap = update_stress_hunger(stress_d, fullness_d, 0);
     action.click = update_stress_hunger(stress_d, fullness_d), 0;
+    action.visible = false;
     return action;
   };
 
@@ -124,26 +126,39 @@ function setup() {
   // sniff flowers
   actions.push(makeAction(ui_text['action6'], ui_text['action6_response'], -0.2, -0.05));
 
-  // Rebuild screen between button presses
-
-  function rebuild_screen(){
-    shuffleArray(actions)
-  }
-
+  // Make title components
+  titlescene = g.group();
   //Add title
   title = g.text(ui_text['title'], "240px Monogram", "black");
   g.stage.putTop(title, -600, 400);
+  titlescene.addChild(title)
 
   // Add game state text
-  curr_text = g.text(ui_text['subtitle'], "240px Monogram", "black");
-  g.stage.putRight(curr_text, -2000, -200);
+  subtitle = g.text(ui_text['subtitle'], "240px Monogram", "black");
+  g.stage.putRight(subtitle, -2000, -600);
   // make it clickable
-  curr_text.interactive = true;
+  subtitle.interactive = true;
+  titlescene.addChild(subtitle)
+  subtitle.tap = () => console.log("The current text was tapped");
+  subtitle.click = () => {console.log("The current text was clicked"); subtitle.visible = false;}
+
+  // Create BeepBox synth
+  music = new beepbox.Synth("8n10s0k0l00e05t1Um0a7g09j04i0r1o3T5v1u32q1d5f8y1z7C1c0h0HU7000U0006000Eb9jB00p21nFEYzwieCCCCS1F8W2eyEzRAt97lnjjjhhjjhjjEFFFFEEFFEbWqqqtd9vhhkhT4t97ihQAuMzG8WieCEzGFHIcI");
+
+  // add music
+  //music.play();
 
   // build
 
   // get a pointer object to find where clicks happen
   pointer = g.makePointer();
+
+  // Rebuild screen between button presses
+  function reset(){
+    shuffleArray(actions)
+    actions[1].visible = true;
+    g.stage.putRight(actions[1], -2000, -600)
+  }
 
   //Change the state to `play`
   g.state = play;
@@ -153,8 +168,7 @@ function setup() {
 function play() {
   console.log("play");
   pointer.tap = () => console.log("The pointer was tapped at "+pointer.x+", "+pointer.y);
-  curr_text.tap = () => console.log("The current text was tapped");
-  curr_text.click = () => console.log("The current text was clicked");
+
   if (awake){
     ticks_since_last_action += 1;
     if (ticks_since_last_action>24){
