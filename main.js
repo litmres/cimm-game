@@ -28,6 +28,20 @@ ui_text['too_hungry_fail'] = "You faint from hunger. Thankfully, you're not alon
 ui_text['win'] = "You did it! You're full! You get to spend the rest of day playing in flowers, and settle down for a comfy nap."
 ui_text['too_stressed_fail'] = "You're too tired! You can't ... keep ... going ... \n\n but your besties have your back ^_^"
 
+/**
+* Randomize array element order in-place.
+* Using Durstenfeld shuffle algorithm.
+* from https://stackoverflow.com/a/12646864
+*/
+function shuffleArray(array) {
+  for (var i = array.length - 1; i > 0; i--) {
+    var j = Math.floor(Math.random() * (i + 1));
+    var temp = array[i];
+    array[i] = array[j];
+    array[j] = temp;
+  }
+}
+
 //Create a new Hexi instance, and start it.
 let g = hexi(2048, 2048, setup);
 
@@ -49,24 +63,12 @@ function setup() {
   g.fps = 2;
   console.log("setup");
 
-  /**
-   * Randomize array element order in-place.
-   * Using Durstenfeld shuffle algorithm.
-   * from https://stackoverflow.com/a/12646864
-   */
-  function shuffleArray(array) {
-      for (var i = array.length - 1; i > 0; i--) {
-          var j = Math.floor(Math.random() * (i + 1));
-          var temp = array[i];
-          array[i] = array[j];
-          array[j] = temp;
-      }
-  }
-
   // Setup vars
   actions = [];
-  stress = 0.1;
-  fullness = 0.25;
+  stress_init = 0.1;
+  fullness_init = 0.25;
+  stress = 0; // reinitialize on play
+  fullness = 0; // reinitialize on play
   action_text_font = "120px Monogram";
   action_text_col = "black";
   action_text_prefix = "> ";
@@ -107,14 +109,18 @@ function setup() {
     return action;
   };
 
-  actions.push(makeAction("Hunt a rat", "You catch a yummy rat and feel slightly fuller.", 0.1, 0.1));
-
-  actions.push(makeAction("Blink", "You blink your eyes. You feel slightly more refreshed.", -0.1, -0.01));
-
-  //action3
-  //action4
-  //action5
-  //action6
+  // get rat
+  actions.push(makeAction(ui_text['action1'], ui_text['action1_response'], 0.2, 0.1));
+  // blink
+  actions.push(makeAction(ui_text['action2'], ui_text['action2_response'], -0.1, -0.01));
+  // sneak up on lizard
+  actions.push(makeAction(ui_text['action3'], ui_text['action3_response'], 0.1, 0.05));
+  // meow
+  actions.push(makeAction(ui_text['action4'], ui_text['action4_response'], -0.2, -0.01));
+  // get bug
+  actions.push(makeAction(ui_text['action5'], ui_text['action5_response'], 0.1, 0.01));
+  // sniff flowers
+  actions.push(makeAction(ui_text['action6'], ui_text['action6_response'], -0.2, -0.05));
 
   // Rebuild screen between button presses
 
