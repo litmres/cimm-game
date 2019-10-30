@@ -4,6 +4,30 @@ let thingsToLoad = [
   "fonts/monogram.ttf"
 ];
 
+// all UI text - switch translations here
+var ui_text = {}
+ui_text['title'] = '> Cinn'
+ui_text['subtitle'] = 'you are a cat.'
+ui_text['play'] = 'wake up?'
+ui_text['about'] = '(about)'
+ui_text['credits'] = '(credits)'
+ui_text['awake_waiting'] = "You're hungry."
+ui_text['action1'] = 'Hunt a rat'
+ui_text['action1_response'] = 'You catch a yummy rat and feel slightly fuller.'
+ui_text['action2'] = 'Blink'
+ui_text['action2_response'] = 'You blink your eyes. You feel slightly more refreshed.'
+ui_text['action3'] = 'Sneak up on a lizard'
+ui_text['action3_response'] = ''
+ui_text['action4'] = 'Meow'
+ui_text['action4_response'] = ''
+ui_text['action5'] = 'Catch a bug'
+ui_text['action5_response'] = ''
+ui_text['action6'] = 'Sniff flowers'
+ui_text['action6_response'] = ''
+ui_text['too_hungry_fail'] = "You faint from hunger. Thankfully, you're not alone ..."
+ui_text['win'] = "You did it! You're full! You get to spend the rest of day playing in flowers, and settle down for a comfy nap."
+ui_text['too_stressed_fail'] = "You're too tired! You can't ... keep ... going ... \n\n but your besties have your back ^_^"
+
 //Create a new Hexi instance, and start it.
 let g = hexi(2048, 2048, setup);
 
@@ -12,7 +36,7 @@ g.scaleToWindow();
 g.start();
 
 // Create BeepBox synth
-var music = new beepbox.Synth("");
+let music = new beepbox.Synth("");
 //music.play();
 //music.pause();
 
@@ -99,11 +123,11 @@ function setup() {
   }
 
   //Add title
-  title = g.text("> Cimm", "240px Monogram", "black");
+  title = g.text(ui_text['title'], "240px Monogram", "black");
   g.stage.putTop(title, -600, 400);
 
   // Add game state text
-  curr_text = g.text("you are a cat...", "240px Monogram", "black");
+  curr_text = g.text(ui_text['subtitle'], "240px Monogram", "black");
   g.stage.putRight(curr_text, -2000, -200);
   // make it clickable
   curr_text.interactive = true;
