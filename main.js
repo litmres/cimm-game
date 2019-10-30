@@ -63,15 +63,17 @@ function setup() {
   g.fps = 2;
   console.log("setup");
 
-  // Setup vars
-  actions = [];
+  // Settings
   stress_init = 0.1;
   fullness_init = 0.25;
-  stress = 0; // reinitialize on play
-  fullness = 0; // reinitialize on play
   action_text_font = "120px Monogram";
   action_text_col = "black";
   action_text_prefix = "> ";
+
+  // Init vars
+  actions = [];
+  stress = 0; // reinitialize on play
+  fullness = 0; // reinitialize on play
   awake = false;
   ticks_since_last_action = 0;
 
@@ -79,10 +81,10 @@ function setup() {
   function update_stress_hunger(stress_d, fullness_d, reset_ticks_n){
     stress += stress_d;
     if (ticks_since_last_action < 12){
-      if stress_d>0{
+      if (stress_d>0){
         stress += stress_d;
       }
-      if stress_d<0{
+      if (stress_d<0){
         stress -= stress_d;
       }
     }
@@ -137,6 +139,8 @@ function setup() {
   g.stage.putRight(curr_text, -2000, -200);
   // make it clickable
   curr_text.interactive = true;
+
+  // build
 
   // get a pointer object to find where clicks happen
   pointer = g.makePointer();
