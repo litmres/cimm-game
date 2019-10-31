@@ -17,17 +17,17 @@ ui_text['credits'] = '(credits)'
 ui_text['sound'] = '(music)'
 ui_text['awake_waiting'] = "You're hungry."
 ui_text['action1'] = 'Hunt a rat'
-ui_text['action1_response'] = 'You catch a yummy rat and \nfeel slightly fuller.'
+ui_text['action1_response'] = 'You catch a yummy rat and \nfeel fuller.'
 ui_text['action2'] = 'Blink'
 ui_text['action2_response'] = 'You blink your eyes. \nYou feel slightly more refreshed.'
 ui_text['action3'] = 'Grab a lizard'
-ui_text['action3_response'] = ''
+ui_text['action3_response'] = 'You sneak up on the tasty lizard and\nfeel slightly fuller.'
 ui_text['action4'] = 'Meow'
-ui_text['action4_response'] = ''
+ui_text['action4_response'] = '~ meow ^_^'
 ui_text['action5'] = 'Catch a bug'
-ui_text['action5_response'] = ''
+ui_text['action5_response'] = 'You swat a small bug. \nIt fills you sligtly.'
 ui_text['action6'] = 'Sniff flowers'
-ui_text['action6_response'] = ''
+ui_text['action6_response'] = 'Stop and smell the \nspring time flowers!'
 ui_text['too_hungry_fail'] = "You faint from hunger. \n\nThankfully, you're not alone, \nand you've got friends \nto bring you food."
 ui_text['win'] = "You did it! You're full! \nYou get to spend the rest of the day \nplaying in flowers, and settle down \nfor a comfy nap."
 ui_text['too_stressed_fail'] = "You're too tired! \n\nYou can't ... keep ... going ... \n\n(you take a nap)"
@@ -103,7 +103,7 @@ function setup() {
       stress_fail_scene.visible = true;
       g.fadeIn(stress_fail_scene, 10);
     }
-    if (fullness < 0){
+    else if (fullness < 0){
       // hunger fail
       fullness = 0.1; // prevent hunger bar overflow
       g.fadeOut(awakescene, 10);
@@ -111,7 +111,7 @@ function setup() {
       hunger_fail_scene.visible = true;
       g.fadeIn(hunger_fail_scene, 10);
     }
-    if (fullness > 1){
+    else if (fullness > 1){
       g.fadeOut(awakescene, 10);
       awakescene.visible = false;
       winscene.visible = true;
