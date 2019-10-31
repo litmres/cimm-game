@@ -28,9 +28,9 @@ ui_text['action5'] = 'Catch a bug'
 ui_text['action5_response'] = ''
 ui_text['action6'] = 'Sniff flowers'
 ui_text['action6_response'] = ''
-ui_text['too_hungry_fail'] = "You faint from hunger. \nThankfully, you're not alone ..."
+ui_text['too_hungry_fail'] = "You faint from hunger. \n\nThankfully, you're not alone, \nand you've got friends \nto bring you food."
 ui_text['win'] = "You did it! You're full! \nYou get to spend the rest of the day \nplaying in flowers, and settle down \nfor a comfy nap."
-ui_text['too_stressed_fail'] = "You're too tired! You can't ... keep ... going ... \n\n but your besties have your back ^_^"
+ui_text['too_stressed_fail'] = "You're too tired! \n\nYou can't ... keep ... going ... \n\n(you take a nap)"
 
 // global variables
 let music, music_toggle, playscene, endscene, titlescene, update_stress_hunger
@@ -91,15 +91,6 @@ function setup() {
   // Alter variables, check for win/fail states
   function update_stress_hunger(stress_d, fullness_d, reset_ticks_n){
     stress += stress_d;
-    // if (ticks_since_last_action < 12){
-    //   console.log("Too quick!")
-    //   if (stress_d>0){
-    //     stress += stress_d;
-    //   }
-    //   if (stress_d<0){
-    //     stress -= stress_d;
-    //   }
-    // }
     if (stress < 0){ // overflow hack
       stress = 0;
     }
@@ -195,8 +186,8 @@ function setup() {
       // action_reponse.content = "";
       // awake_reset();
       titlescene.visible = false;
-      hunger_fail_scene.visible = true;
-      g.fadeIn(hunger_fail_scene, 10);
+      stress_fail_scene.visible = true;
+      g.fadeIn(stress_fail_scene, 10);
       // update_stress_hunger(0,0,24);
     }
   }
@@ -248,26 +239,6 @@ function setup() {
     g.stage.putRight(actions[3], -1900, 300);
     g.stage.putRight(actions[4], -1900, 600);
     g.stage.putRight(actions[5], -1900, 900);
-    // g.fadeIn(actions[0], 10);
-    // g.fadeIn(actions[1], 10);
-    // g.fadeIn(actions[2], 10);
-    // g.fadeIn(actions[3], 10);
-    // g.fadeIn(actions[4], 10);
-    // g.fadeIn(actions[5], 10);
-    // actions[0].visible = true;
-    // actions[1].visible = true;
-    // actions[2].visible = true;
-    // actions[3].visible = true;
-    // actions[4].visible = true;
-    // actions[5].visible = true;
-  }
-  function return_to_sleep(){
-    g.fadeOut(actions[0], 10);
-    g.fadeOut(actions[1], 10);
-    g.fadeOut(actions[2], 10);
-    g.fadeOut(actions[3], 10);
-    g.fadeOut(actions[4], 10);
-    g.fadeOut(actions[5], 10);
   }
 
   // build win screen
@@ -286,7 +257,7 @@ function setup() {
   winscene.addChild(win_kitty);
 
   win_text = g.text(ui_text['win'], "120px Monogram", "black");
-  g.stage.putTop(win_text, -100, 500);
+  g.stage.putRight(win_text, -1900, -700);
   winscene.addChild(win_text);
 
   // Add play button
@@ -320,7 +291,7 @@ function setup() {
   hunger_fail_scene.addChild(fail1_bg);
 
   fail1_text = g.text(ui_text['too_hungry_fail'], "120px Monogram", "black");
-  g.stage.putTop(fail1_text, -100, 500);
+  g.stage.putRight(fail1_text, -1900, -700);
   hunger_fail_scene.addChild(fail1_text);
 
   // Add play button
@@ -346,6 +317,37 @@ function setup() {
   }
 
   // fail screen (too stressed)
+  stress_fail_scene = g.group();
+
+  // grey background
+  fail2_bg = g.rectangle(2048, 2048, "grey");
+  stress_fail_scene.addChild(fail2_bg);
+
+  fail2_text = g.text(ui_text['too_stressed_fail'], "120px Monogram", "black");
+  g.stage.putRight(fail2_text, -1900, -700);
+  stress_fail_scene.addChild(fail2_text);
+
+  // Add play button
+  play_button_fail2 = g.text("> "+ui_text['play'], "120px Monogram", "black");
+  g.stage.putRight(play_button_fail2, -1900, 300);
+  // make it clickable
+  play_button_fail2.interactive = true;
+  stress_fail_scene.addChild(play_button_fail2);
+  // play_button_win.tap = () => console.log("The current text was tapped");
+  play_button_fail2.click = () => {
+    console.log("The current text was clicked");
+    wake_up = g.fadeOut(hunger_fail_scene, 10);
+    wake_up.onComplete = () => {
+      stress = stress_init;
+      fullness = fullness_init;
+      action_reponse.content = "";
+      awake_reset();
+      stress_fail_scene.visible = false;
+      awakescene.visible = true;
+      g.fadeIn(awakescene, 10);
+      update_stress_hunger(0,0,24);
+    }
+  }
 
   // Hide other scenes
   awakescene.alpha = 0;
@@ -354,6 +356,8 @@ function setup() {
   winscene.visible = false;
   hunger_fail_scene.alpha = 0;
   hunger_fail_scene.visible = false;
+  stress_fail_scene.alpha = 0;
+  stress_fail_scene.visible = false;
 
   //Change the state to `play`
   g.state = play;
