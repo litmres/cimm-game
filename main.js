@@ -98,10 +98,18 @@ function setup() {
     //ticks_since_last_action = reset_ticks_n
     if (stress >= 1){
       // burnout fail
-      stress = 1;
+      g.fadeOut(awakescene, 10);
+      awakescene.visible = false;
+      stress_fail_scene.visible = true;
+      g.fadeIn(stress_fail_scene, 10);
     }
     if (fullness < 0){
       // hunger fail
+      fullness = 0.1; // prevent hunger bar overflow
+      g.fadeOut(awakescene, 10);
+      awakescene.visible = false;
+      hunger_fail_scene.visible = true;
+      g.fadeIn(hunger_fail_scene, 10);
     }
     if (fullness > 1){
       g.fadeOut(awakescene, 10);
@@ -181,14 +189,14 @@ function setup() {
     console.log("The current text was clicked");
     wake_up = g.fadeOut(titlescene, 10);
     wake_up.onComplete = () => {
-      // stress = stress_init;
-      // fullness = fullness_init;
-      // action_reponse.content = "";
-      // awake_reset();
+      stress = stress_init;
+      fullness = fullness_init;
+      action_reponse.content = "";
+      awake_reset();
       titlescene.visible = false;
-      stress_fail_scene.visible = true;
-      g.fadeIn(stress_fail_scene, 10);
-      // update_stress_hunger(0,0,24);
+      awakescene.visible = true;
+      g.fadeIn(awakescene, 10);
+      update_stress_hunger(0,0,24);
     }
   }
 
