@@ -2,6 +2,7 @@
 let thingsToLoad = [
   "img/Cimm_mc.png",
   "img/Cimm_mc_awake.png",
+  "snd/meow.mp3",
   "fonts/monogram.ttf"
 ];
 
@@ -120,6 +121,7 @@ function setup() {
     }
   }
 
+  let meow = g.sound("snd/meow.mp3");
   // Configure actions
   // this could be refactored better
   function makeAction(action_text, success_text, stress_d, fullness_d){
@@ -129,6 +131,9 @@ function setup() {
     action.click = () => {
       update_stress_hunger(stress_d, fullness_d, 24);
       action_reponse.content = success_text;
+      if (action_text==ui_text['action4']){ // hack for meows
+        meow.play();
+      }
       awake_reset();
     }
     action.alpha = 0;
