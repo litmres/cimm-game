@@ -2,13 +2,14 @@
 let thingsToLoad = [
   "img/Cimm_mc.png",
   "img/Cimm_mc_awake.png",
+  "img/Cimm_mc_win.png",
   "snd/meow.mp3",
   "fonts/monogram.ttf"
 ];
 
 // all UI text - switch translations here
 var ui_text = {}
-ui_text['title'] = '> Cinn'
+ui_text['title'] = '> Cimm'
 ui_text['subtitle'] = 'you are a cat.'
 ui_text['play'] = 'wake up?'
 ui_text['about'] = '(about)'
@@ -28,7 +29,7 @@ ui_text['action5_response'] = ''
 ui_text['action6'] = 'Sniff flowers'
 ui_text['action6_response'] = ''
 ui_text['too_hungry_fail'] = "You faint from hunger. Thankfully, you're not alone ..."
-ui_text['win'] = "You did it! You're full! You get to spend the rest of day playing in flowers, and settle down for a comfy nap."
+ui_text['win'] = "You did it! You're full! \nYou get to spend the rest of the day \nplaying in flowers, and settle down \nfor a comfy nap."
 ui_text['too_stressed_fail'] = "You're too tired! You can't ... keep ... going ... \n\n but your besties have your back ^_^"
 
 // global variables
@@ -117,7 +118,8 @@ function setup() {
       // hunger fail
     }
     else if (fullness > 1){
-      // win
+      g.fadeOut(awakescene, 10);
+      g.fadeIn(winscene, 10);
     }
   }
 
@@ -136,7 +138,7 @@ function setup() {
       }
       awake_reset();
     }
-    action.alpha = 0;
+    // action.alpha = 0;
     console.log("Making button "+action_text);
     awakescene.addChild(action);
     return action;
@@ -171,20 +173,28 @@ function setup() {
   g.stage.putTop(title, -600, 300);
   titlescene.addChild(title)
 
-  // Add game state text
+  // Add subtitle
   subtitle = g.text(ui_text['subtitle'], "240px Monogram", "black");
   g.stage.putRight(subtitle, -1900, -600);
+  titlescene.addChild(subtitle);
+
+  // Add play button
+  play_button = g.text("> "+ui_text['play'], "120px Monogram", "black");
+  g.stage.putRight(play_button, -1900, 300);
+
+
   // make it clickable
-  subtitle.interactive = true;
-  titlescene.addChild(subtitle)
-  subtitle.tap = () => console.log("The current text was tapped");
-  subtitle.click = () => {
+  play_button.interactive = true;
+  titlescene.addChild(play_button)
+  play_button.tap = () => console.log("The current text was tapped");
+  play_button.click = () => {
     console.log("The current text was clicked");
     wake_up = g.fadeOut(titlescene, 10);
     wake_up.onComplete = () => {
-      awake_reset();
-      update_stress_hunger(0,0,24);
-      g.fadeIn(awakescene, 10);
+      //awake_reset();
+      //update_stress_hunger(0,0,24);
+      winscene.visible = true;
+      g.fadeIn(winscene, 10);
     }
   }
 
@@ -205,6 +215,8 @@ function setup() {
   main_kitty_awake.setPosition(800,700);
   awakescene.addChild(main_kitty_awake);
 
+
+
   // Create BeepBox synth
   music = new beepbox.Synth("8n10s0k0l00e05t1Um0a7g09j04i0r1o3T5v1u32q1d5f8y1z7C1c0h0HU7000U0006000Eb9jB00p21nFEYzwieCCCCS1F8W2eyEzRAt97lnjjjhhjjhjjEFFFFEEFFEbWqqqtd9vhhkhT4t97ihQAuMzG8WieCEzGFHIcI");
 
@@ -222,15 +234,12 @@ function setup() {
 
   awakescene.addChild(hunger_bar);
 
-
-
   // get a pointer object to find where clicks happen
   pointer = g.makePointer();
   pointer.tap = () => console.log("The pointer was tapped at "+pointer.x+", "+pointer.y);
 
   // Rebuild screen between button presses
   function awake_reset(){
-    awake = true;
     shuffleArray(actions);
     g.stage.putRight(actions[0], -1000, 600);
     g.stage.putRight(actions[1], -1000, 300);
@@ -238,12 +247,12 @@ function setup() {
     g.stage.putRight(actions[3], -1900, 300);
     g.stage.putRight(actions[4], -1900, 600);
     g.stage.putRight(actions[5], -1900, 900);
-    g.fadeIn(actions[0], 10);
-    g.fadeIn(actions[1], 10);
-    g.fadeIn(actions[2], 10);
-    g.fadeIn(actions[3], 10);
-    g.fadeIn(actions[4], 10);
-    g.fadeIn(actions[5], 10);
+    // g.fadeIn(actions[0], 10);
+    // g.fadeIn(actions[1], 10);
+    // g.fadeIn(actions[2], 10);
+    // g.fadeIn(actions[3], 10);
+    // g.fadeIn(actions[4], 10);
+    // g.fadeIn(actions[5], 10);
     // actions[0].visible = true;
     // actions[1].visible = true;
     // actions[2].visible = true;
@@ -260,11 +269,56 @@ function setup() {
     g.fadeOut(actions[5], 10);
   }
 
+  // build win screen
+  winscene = g.group();
+
+  // pink background
+  win_bg = g.rectangle(2048, 2048, 0xffccf1);
+  winscene.addChild(win_bg);
+
+  win_kitty_anim = g.filmstrip("img/Cimm_mc_win.png", 352, 352);
+  win_kitty = g.sprite(win_kitty_anim);
+  win_kitty.fps = 2;
+  win_kitty.playAnimation([0,8]);
+  win_kitty.setScale(1.5,1.5);
+  win_kitty.setPosition(800,700);
+  winscene.addChild(win_kitty);
+
+  win_text = g.text(ui_text['win'], "120px Monogram", "black");
+  g.stage.putTop(win_text, -100, 500);
+  winscene.addChild(win_text);
+
+  // Add play button
+  play_button_win = g.text("> "+ui_text['play'], "120px Monogram", "black");
+  g.stage.putRight(play_button_win, -1900, 300);
+  // make it clickable
+  play_button_win.interactive = true;
+  winscene.addChild(play_button_win)
+  play_button_win.tap = () => console.log("The current text was tapped");
+  play_button_win.click = () => {
+    console.log("The current text was clicked");
+    wake_up = g.fadeOut(titlescene, 10);
+    wake_up.onComplete = () => {
+      stress = stress_init;
+      fullness = fullness_init;
+      awake_reset();
+      update_stress_hunger(0,0,24);
+      g.fadeIn(awakescene, 10);
+    }
+  }
+
+
+  // fail screen (too hungry)
+
+  // fail screen (too stressed)
+
   // Hide other scenes
   awakescene.alpha = 0;
-  // Update starting levels
-  stress = stress_init;
-  fullness = fullness_init;
+  awakescene.visible = false;
+  winscene.alpha = 0;
+  winscene.visible = false;
+
+
 
   //Change the state to `play`
   g.state = play;
