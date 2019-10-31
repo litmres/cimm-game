@@ -1,6 +1,7 @@
 // preload media
 let thingsToLoad = [
-  "img/Cimm_mc.json",
+  "img/Cimm_mc.png",
+  "img/Cimm_mc_awake.png",
   "fonts/monogram.ttf"
 ];
 
@@ -14,10 +15,10 @@ ui_text['credits'] = '(credits)'
 ui_text['sound'] = '(music)'
 ui_text['awake_waiting'] = "You're hungry."
 ui_text['action1'] = 'Hunt a rat'
-ui_text['action1_response'] = 'You catch a yummy rat and feel slightly fuller.'
+ui_text['action1_response'] = 'You catch a yummy rat and \nfeel slightly fuller.'
 ui_text['action2'] = 'Blink'
-ui_text['action2_response'] = 'You blink your eyes. You feel slightly more refreshed.'
-ui_text['action3'] = 'Sneak up on a lizard'
+ui_text['action2_response'] = 'You blink your eyes. \nYou feel slightly more refreshed.'
+ui_text['action3'] = 'Grab a lizard'
 ui_text['action3_response'] = ''
 ui_text['action4'] = 'Meow'
 ui_text['action4_response'] = ''
@@ -30,7 +31,7 @@ ui_text['win'] = "You did it! You're full! You get to spend the rest of day play
 ui_text['too_stressed_fail'] = "You're too tired! You can't ... keep ... going ... \n\n but your besties have your back ^_^"
 
 // global variables
-let music, music_toggle, playscene, endscene, titlescene
+let music, music_toggle, playscene, endscene, titlescene, update_stress_hunger
 
 /**
 * Randomize array element order in-place.
@@ -47,7 +48,7 @@ function shuffleArray(array) {
 }
 
 //Create a new Hexi instance, and start it.
-let g = hexi(2048, 2048, setup);
+let g = hexi(2048, 2048, setup, thingsToLoad);
 
 g.border = "2px red dashed";
 g.scaleToWindow();
@@ -60,7 +61,7 @@ function load(){
 }
 
 function setup() {
-  g.fps = 2;
+  g.fps = 10;
   console.log("setup");
 
   // Settings
@@ -78,18 +79,35 @@ function setup() {
   ticks_since_last_action = 0;
   music_status = true;
 
+  awakescene = g.group();
+  // build fake background
+  fb_bg = g.rectangle(2048, 2048, "black");
+  bg_bg = g.rectangle(2048, 2048, "white");
+  awakescene.addChild(fb_bg);
+  awakescene.addChild(bg_bg);
+
   // Alter variables, check for win/fail states
   function update_stress_hunger(stress_d, fullness_d, reset_ticks_n){
+    if (awake==false){
+      return;
+    }
     stress += stress_d;
-    if (ticks_since_last_action < 12){
-      if (stress_d>0){
-        stress += stress_d;
-      }
-      if (stress_d<0){
-        stress -= stress_d;
-      }
+    // if (ticks_since_last_action < 12){
+    //   console.log("Too quick!")
+    //   if (stress_d>0){
+    //     stress += stress_d;
+    //   }
+    //   if (stress_d<0){
+    //     stress -= stress_d;
+    //   }
+    // }
+    if (stress < 0){ // overflow hack
+      stress = 0;
     }
     fullness += fullness_d
+    hunger_bar.inner.height = 2000*fullness;
+    awakescene.alpha = 0.05 + (0.95 * (1-stress))
+    console.log("Stress at "+stress+", Fullness at "+fullness)
     ticks_since_last_action = reset_ticks_n
     if (stress >= 1){
       // burnout fail
@@ -107,9 +125,15 @@ function setup() {
   function makeAction(action_text, success_text, stress_d, fullness_d){
     action = g.text(action_text_prefix+action_text, action_text_font, action_text_col);
     action.interactive = true;
-    action.tap = update_stress_hunger(stress_d, fullness_d, 0);
-    action.click = update_stress_hunger(stress_d, fullness_d), 0;
-    action.visible = false;
+    //action.tap = () => update_stress_hunger(stress_d, fullness_d, 0);
+    action.click = () => {
+      update_stress_hunger(stress_d, fullness_d, 24);
+      action_reponse.content = success_text;
+      awake_reset();
+    }
+    action.alpha = 0;
+    console.log("Making button "+action_text);
+    awakescene.addChild(action);
     return action;
   };
 
@@ -126,21 +150,55 @@ function setup() {
   // sniff flowers
   actions.push(makeAction(ui_text['action6'], ui_text['action6_response'], -0.2, -0.05));
 
+  awake_status = g.text("> "+ui_text['awake_waiting'], "240px Monogram", "black");
+  g.stage.putTop(awake_status, -100, 300);
+  awakescene.addChild(awake_status);
+
+  action_reponse = g.text("", "120px Monogram", "black");
+  g.stage.putRight(action_reponse, -1900, -600);
+  awakescene.addChild(action_reponse);
+
   // Make title components
   titlescene = g.group();
+
   //Add title
   title = g.text(ui_text['title'], "240px Monogram", "black");
-  g.stage.putTop(title, -600, 400);
+  g.stage.putTop(title, -600, 300);
   titlescene.addChild(title)
 
   // Add game state text
   subtitle = g.text(ui_text['subtitle'], "240px Monogram", "black");
-  g.stage.putRight(subtitle, -2000, -600);
+  g.stage.putRight(subtitle, -1900, -600);
   // make it clickable
   subtitle.interactive = true;
   titlescene.addChild(subtitle)
   subtitle.tap = () => console.log("The current text was tapped");
-  subtitle.click = () => {console.log("The current text was clicked"); subtitle.visible = false;}
+  subtitle.click = () => {
+    console.log("The current text was clicked");
+    wake_up = g.fadeOut(titlescene, 10);
+    wake_up.onComplete = () => {
+      awake_reset();
+      update_stress_hunger(0,0,24);
+      g.fadeIn(awakescene, 10);
+    }
+  }
+
+  // add cat
+  main_kitty_anim = g.filmstrip("img/Cimm_mc.png", 352, 352);
+  main_kitty = g.sprite(main_kitty_anim);
+  main_kitty.fps = 2;
+  main_kitty.playAnimation([0,2]);
+  main_kitty.setScale(1.5,1.5);
+  main_kitty.setPosition(800,700);
+  titlescene.addChild(main_kitty);
+
+  main_kitty_anim_awake = g.filmstrip("img/Cimm_mc_awake.png", 352, 352);
+  main_kitty_awake = g.sprite(main_kitty_anim_awake);
+  main_kitty_awake.fps = 2;
+  main_kitty_awake.playAnimation([0,2]);
+  main_kitty_awake.setScale(1.5,1.5);
+  main_kitty_awake.setPosition(800,700);
+  awakescene.addChild(main_kitty_awake);
 
   // Create BeepBox synth
   music = new beepbox.Synth("8n10s0k0l00e05t1Um0a7g09j04i0r1o3T5v1u32q1d5f8y1z7C1c0h0HU7000U0006000Eb9jB00p21nFEYzwieCCCCS1F8W2eyEzRAt97lnjjjhhjjhjjEFFFFEEFFEbWqqqtd9vhhkhT4t97ihQAuMzG8WieCEzGFHIcI");
@@ -148,32 +206,75 @@ function setup() {
   // add music
   //music.play();
 
-  // build
+  // build hunger bar
+  outerBar = g.rectangle(50, 2000, "black");
+  innerBar = g.rectangle(30, 1980, "white");
+  innerBar.x += 10;
+  innerBar.y += 10;
+  hunger_bar = g.group(outerBar, innerBar);
+  hunger_bar.inner = innerBar;
+  hunger_bar.setPosition(20,20);
+
+  awakescene.addChild(hunger_bar);
+
+
 
   // get a pointer object to find where clicks happen
   pointer = g.makePointer();
+  pointer.tap = () => console.log("The pointer was tapped at "+pointer.x+", "+pointer.y);
 
   // Rebuild screen between button presses
-  function reset(){
-    shuffleArray(actions)
-    actions[1].visible = true;
-    g.stage.putRight(actions[1], -2000, -600)
+  function awake_reset(){
+    awake = true;
+    shuffleArray(actions);
+    g.stage.putRight(actions[0], -1000, 600);
+    g.stage.putRight(actions[1], -1000, 300);
+    g.stage.putRight(actions[2], -1000, 900);
+    g.stage.putRight(actions[3], -1900, 300);
+    g.stage.putRight(actions[4], -1900, 600);
+    g.stage.putRight(actions[5], -1900, 900);
+    g.fadeIn(actions[0], 10);
+    g.fadeIn(actions[1], 10);
+    g.fadeIn(actions[2], 10);
+    g.fadeIn(actions[3], 10);
+    g.fadeIn(actions[4], 10);
+    g.fadeIn(actions[5], 10);
+    // actions[0].visible = true;
+    // actions[1].visible = true;
+    // actions[2].visible = true;
+    // actions[3].visible = true;
+    // actions[4].visible = true;
+    // actions[5].visible = true;
   }
+  function return_to_sleep(){
+    g.fadeOut(actions[0], 10);
+    g.fadeOut(actions[1], 10);
+    g.fadeOut(actions[2], 10);
+    g.fadeOut(actions[3], 10);
+    g.fadeOut(actions[4], 10);
+    g.fadeOut(actions[5], 10);
+  }
+
+  // Hide other scenes
+  awakescene.alpha = 0;
+  // Update starting levels
+  stress = stress_init;
+  fullness = fullness_init;
 
   //Change the state to `play`
   g.state = play;
+
 }
 
 //The `play` function will run in a loop
 function play() {
   console.log("play");
-  pointer.tap = () => console.log("The pointer was tapped at "+pointer.x+", "+pointer.y);
 
-  if (awake){
-    ticks_since_last_action += 1;
-    if (ticks_since_last_action>24){
-      update_stress_hunger(0, -0.01, 12);
-    }
-  }
+  // if (awake){
+  //   ticks_since_last_action += 1;
+  //   if (ticks_since_last_action>24){
+  //     update_stress_hunger(0, -0.01, 12);
+  //   }
+  // }
 
 }
