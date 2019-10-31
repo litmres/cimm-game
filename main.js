@@ -14,7 +14,7 @@ ui_text['subtitle'] = 'you are a cat.'
 ui_text['play'] = 'wake up?'
 ui_text['about'] = '(about)'
 ui_text['credits'] = '(credits)'
-ui_text['sound'] = '(music)'
+ui_text['sound'] = '(sound)'
 ui_text['awake_waiting'] = "You're hungry."
 ui_text['action1'] = 'Hunt a rat'
 ui_text['action1_response'] = 'You catch a yummy rat and \nfeel fuller.'
@@ -79,7 +79,6 @@ function setup() {
   fullness = 0; // reinitialize on play
   awake = false;
   ticks_since_last_action = 0;
-  music_status = true;
 
   awakescene = g.group();
   // build fake background
@@ -119,7 +118,7 @@ function setup() {
     }
     hunger_bar.inner.height = 2000*fullness;
     awakescene.alpha = 0.1 + (0.9 * (1-stress))
-    console.log("Stress at "+stress+", Fullness at "+fullness)
+    // console.log("Stress at "+stress+", Fullness at "+fullness)
   }
 
   let meow = g.sound("snd/meow.mp3");
@@ -177,6 +176,21 @@ function setup() {
   g.stage.putRight(subtitle, -1900, -600);
   titlescene.addChild(subtitle);
 
+  // music toggle
+  sound_btn = g.text(ui_text['sound'], "120px Monogram", "black");
+  g.stage.putRight(sound_btn, -350, -950);
+  titlescene.addChild(sound_btn)
+
+  sound_btn.interactive = true;
+  sound_btn.click = () => {
+    console.log("sound clicked");
+    if (music.paused){
+      music.play();
+    } else {
+      music.pause();
+    }
+  }
+
   // Add play button
   play_button = g.text("> "+ui_text['play'], "120px Monogram", "black");
   g.stage.putRight(play_button, -1900, 300);
@@ -221,7 +235,7 @@ function setup() {
   music = new beepbox.Synth("8n10s0k0l00e05t1Um0a7g09j04i0r1o3T5v1u32q1d5f8y1z7C1c0h0HU7000U0006000Eb9jB00p21nFEYzwieCCCCS1F8W2eyEzRAt97lnjjjhhjjhjjEFFFFEEFFEbWqqqtd9vhhkhT4t97ihQAuMzG8WieCEzGFHIcI");
 
   // add music
-  //music.play();
+  music.play();
 
   // build hunger bar
   outerBar = g.rectangle(50, 2000, "black");
