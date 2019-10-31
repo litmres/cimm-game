@@ -123,7 +123,6 @@ function setup() {
 
   let meow = g.sound("snd/meow.mp3");
   // Configure actions
-  // this could be refactored better
   function makeAction(action_text, success_text, stress_d, fullness_d){
     action = g.text(action_text_prefix+action_text, action_text_font, action_text_col);
     action.interactive = true;
@@ -136,8 +135,6 @@ function setup() {
       }
       awake_reset();
     }
-    // action.alpha = 0;
-    console.log("Making button "+action_text);
     awakescene.addChild(action);
     return action;
   };
@@ -183,7 +180,6 @@ function setup() {
 
   sound_btn.interactive = true;
   sound_btn.click = () => {
-    console.log("sound clicked");
     if (music.paused){
       music.play();
     } else {
@@ -198,9 +194,8 @@ function setup() {
 
   // make it clickable
   play_button.interactive = true;
-  play_button.tap = () => console.log("The current text was tapped");
+  // play_button.tap = () => console.log("The current text was tapped");
   play_button.click = () => {
-    console.log("The current text was clicked");
     wake_up = g.fadeOut(titlescene, 10);
     wake_up.onComplete = () => {
       stress = stress_init;
@@ -248,10 +243,6 @@ function setup() {
 
   awakescene.addChild(hunger_bar);
 
-  // get a pointer object to find where clicks happen
-  pointer = g.makePointer();
-  pointer.tap = () => console.log("The pointer was tapped at "+pointer.x+", "+pointer.y);
-
   // Rebuild screen between button presses
   function awake_reset(){
     shuffleArray(actions);
@@ -290,7 +281,6 @@ function setup() {
   winscene.addChild(play_button_win)
   // play_button_win.tap = () => console.log("The current text was tapped");
   play_button_win.click = () => {
-    console.log("The current text was clicked");
     wake_up = g.fadeOut(winscene, 10);
     wake_up.onComplete = () => {
       stress = stress_init;
@@ -324,7 +314,6 @@ function setup() {
   hunger_fail_scene.addChild(play_button_fail1);
   // play_button_win.tap = () => console.log("The current text was tapped");
   play_button_fail1.click = () => {
-    console.log("The current text was clicked");
     wake_up = g.fadeOut(hunger_fail_scene, 10);
     wake_up.onComplete = () => {
       stress = stress_init;
@@ -357,7 +346,6 @@ function setup() {
   stress_fail_scene.addChild(play_button_fail2);
   // play_button_win.tap = () => console.log("The current text was tapped");
   play_button_fail2.click = () => {
-    console.log("The current text was clicked");
     wake_up = g.fadeOut(hunger_fail_scene, 10);
     wake_up.onComplete = () => {
       stress = stress_init;
@@ -381,14 +369,13 @@ function setup() {
   stress_fail_scene.alpha = 0;
   stress_fail_scene.visible = false;
 
-  //Change the state to `play`
+  // Run game
   g.state = play;
 
 }
 
-//The `play` function will run in a loop
 function play() {
-  console.log("play");
+  // do I need this?
 
   // if (awake){
   //   ticks_since_last_action += 1;
